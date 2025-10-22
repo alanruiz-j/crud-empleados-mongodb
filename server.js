@@ -1,21 +1,17 @@
-// 1. Importar las dependencias
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const cors = require('cors');
 
-// 2. Configuración inicial
 const app = express();
 const port = 3000;
 const mongoUrl = 'mongodb://localhost:27017';
 const dbName = 'EmpleadosBD';
 let db;
 
-// 3. Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 4. Función principal para conectar a MongoDB e iniciar el servidor
 async function connectAndStartServer() {
     try {
         const client = new MongoClient(mongoUrl);
@@ -24,11 +20,7 @@ async function connectAndStartServer() {
         
         db = client.db(dbName);
 
-        // ==========================================================
-        // RUTAS 'GET' PARA POBLAR LOS SELECTS (Sin cambios)
-        // ==========================================================
-
-        // GET - Cargar Géneros
+        // API endpoints for populating form selects with reference data
         app.get('/api/generos', async (req, res) => {
             try {
                 const data = await db.collection('Generos').find({ estado_genero: true }).toArray();
@@ -39,7 +31,6 @@ async function connectAndStartServer() {
             }
         });
 
-        // GET - Cargar Departamentos
         app.get('/api/departamentos', async (req, res) => {
             try {
                 const data = await db.collection('Departamentos').find({ estado_departamento: true }).toArray();
@@ -50,7 +41,6 @@ async function connectAndStartServer() {
             }
         });
 
-        // GET - Cargar Países
         app.get('/api/paises', async (req, res) => {
             try {
                 const data = await db.collection('Paises').find({ estado_pais: true }).toArray();
@@ -61,7 +51,6 @@ async function connectAndStartServer() {
             }
         });
 
-        // GET - Cargar Estados (por País)
         app.get('/api/estados/pais/:paisId', async (req, res) => {
             try {
                 const paisId = new ObjectId(req.params.paisId);
@@ -73,7 +62,6 @@ async function connectAndStartServer() {
             }
         });
 
-        // GET - Cargar Municipios (por Estado)
         app.get('/api/municipios/estado/:estadoId', async (req, res) => {
             try {
                 const estadoId = new ObjectId(req.params.estadoId);
@@ -86,16 +74,12 @@ async function connectAndStartServer() {
         });
 
 
-        // ==========================================================
-        // RUTA 'POST' PARA GUARDAR EMPLEADO (¡ACTUALIZADA!)
-        // ==========================================================
+        // Endpoint to create new employee records
         app.post('/api/empleados', async (req, res) => {
             console.log('Datos recibidos del formulario:', req.body);
 
             try {
-                // 6. Mapear datos del formulario al schema (Dinámicamente)
-
-                // --- Domicilio (con campo opcional) ---
+                // Build address object with optional interior number
                 const domicilio = {
                     calle: req.body.calle_empleado || '',
                     numero_exterior: req.body.numero_exterior_empleado || '',
@@ -103,14 +87,12 @@ async function connectAndStartServer() {
                     id_municipio: new ObjectId(req.body.municipio_empleado)
                 };
                 
-                // Añadir 'numero_interior' SOLO SI existe y no está vacío
                 if (req.body.numero_interior_empleado) {
                     domicilio.numero_interior = req.body.numero_interior_empleado;
                 }
 
-                // --- Correos (con campo opcional) ---
+                // Build email array with optional secondary email
                 const correos = [];
-                // El correo principal es obligatorio por el formulario
                 if (req.body.correo_principal_empleado) {
                     correos.push({
                         correo_empleado: req.body.correo_principal_empleado,
@@ -118,7 +100,6 @@ async function connectAndStartServer() {
                     });
                 }
                 
-                // Añadir 'correo_secundario' SOLO SI existe y no está vacío
                 if (req.body.correo_secundario_empleado) {
                     correos.push({
                         correo_empleado: req.body.correo_secundario_empleado,
@@ -126,8 +107,7 @@ async function connectAndStartServer() {
                     });
                 }
 
-                // --- Documento Principal (con campos opcionales) ---
-                // Empezamos con los campos obligatorios
+                // Build main employee document with required fields
                 const documentoEmpleado = {
                     nombre_empleado: req.body.nombre_empleado || '',
                     id_genero: new ObjectId(req.body.genero_empleado),
@@ -140,21 +120,20 @@ async function connectAndStartServer() {
                     correos: correos
                 };
                 
-                // Añadir 'apellido_paterno' SOLO SI existe y no está vacío
+                // Add optional last names if provided
                 if (req.body.apellido_paterno_empleado) {
                     documentoEmpleado.apellido_paterno = req.body.apellido_paterno_empleado;
                 }
 
-                // Añadir 'apellido_materno' SOLO SI existe y no está vacío
                 if (req.body.apellido_materno_empleado) {
                     documentoEmpleado.apellido_materno = req.body.apellido_materno_empleado;
                 }
                 
-                // 7. Insertar en la base de datos
+                // Insert employee record into database
                 const coleccion = db.collection('Empleados');
                 const resultado = await coleccion.insertOne(documentoEmpleado);
 
-                // 8. Responder al front-end con éxito
+                // Return success response
                 res.status(201).json({
                     status: 'success',
                     message: 'Empleado guardado con éxito',
@@ -162,9 +141,8 @@ async function connectAndStartServer() {
                 });
 
             } catch (err) {
-                // 9. Manejo de Errores (incluyendo validación de Schema)
+                // Handle validation and server errors
                 if (err.name === 'MongoServerError' && err.code === 121) {
-                    // Error de validación de Schema
                     console.error('Error de validación:', err.errInfo.details);
                     res.status(400).json({
                         status: 'error',
@@ -172,7 +150,6 @@ async function connectAndStartServer() {
                         details: err.errInfo.details
                     });
                 } else {
-                    // Otro error
                     console.error('Error al insertar:', err);
                     res.status(500).json({
                         status: 'error',
@@ -183,7 +160,7 @@ async function connectAndStartServer() {
             }
         });
 
-        // Iniciar el servidor
+        // Start the Express server
         app.listen(port, () => {
             console.log(`Servidor API corriendo en http://localhost:${port}`);
         });
@@ -194,5 +171,5 @@ async function connectAndStartServer() {
     }
 }
 
-// Ejecutar la función principal
+// Initialize database connection and start server
 connectAndStartServer();

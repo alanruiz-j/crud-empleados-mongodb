@@ -200,13 +200,10 @@
 
     <script>
         $(document).ready(function() {
-
-            // URL base de tu API (la crearemos en server.js)
+            // API base URL for backend communication
             const API_URL = 'http://localhost:3000/api';
 
-            // ----- 1. Carga inicial de datos (Selects) -----
-            
-            // Cargar Géneros
+            // Load initial reference data for form selects
             function cargarGeneros() {
                 $.ajax({
                     url: `${API_URL}/generos`,
@@ -215,7 +212,7 @@
                         const $select = $('#genero');
                         $select.html('<option value="" class="select-placeholder" selected disabled>Seleccione...</option>');
                         data.forEach(item => {
-                            // Usamos el _id de MongoDB como el 'value'
+                            // Use MongoDB _id as option value
                             $select.append($('<option>').val(item._id).text(item.nombre_genero));
                         });
                     },
@@ -225,7 +222,7 @@
                 });
             }
 
-            // Cargar Departamentos
+            // Load departments for employee assignment
             function cargarDepartamentos() {
                 $.ajax({
                     url: `${API_URL}/departamentos`,
@@ -234,8 +231,6 @@
                         const $select = $('#departamento');
                         $select.html('<option value="" class="select-placeholder" selected disabled>Seleccione...</option>');
                         data.forEach(item => {
-                            // NOTA: Tu schema 'departamentosSchema' tenía un error (decía nombre_pais).
-                            // Asumimos que el campo en la DB es 'nombre_departamento'.
                             $select.append($('<option>').val(item._id).text(item.nombre_departamento || item.nombre_pais));
                         });
                     },
@@ -245,7 +240,7 @@
                 });
             }
 
-            // Cargar Países
+            // Load countries for address selection
             function cargarPaises() {
                 $.ajax({
                     url: `${API_URL}/paises`,
@@ -263,14 +258,14 @@
                 });
             }
 
-            // Cargar Estados (depende de País)
+            // Load states based on selected country
             function cargarEstados(paisId) {
                 if (!paisId) {
                     resetEstados();
                     return;
                 }
                 $.ajax({
-                    url: `${API_URL}/estados/pais/${paisId}`, // Ruta para buscar estados por ID de país
+                    url: `${API_URL}/estados/pais/${paisId}`,
                     type: 'GET',
                     success: function(data) {
                         const $select = $('#estado');
@@ -286,14 +281,14 @@
                 });
             }
 
-            // Cargar Municipios (depende de Estado)
+            // Load municipalities based on selected state
             function cargarMunicipios(estadoId) {
                 if (!estadoId) {
                     resetMunicipios();
                     return;
                 }
                  $.ajax({
-                    url: `${API_URL}/municipios/estado/${estadoId}`, // Ruta para buscar municipios por ID de estado
+                    url: `${API_URL}/municipios/estado/${estadoId}`,
                     type: 'GET',
                     success: function(data) {
                         const $select = $('#municipio');
@@ -308,7 +303,7 @@
                 });
             }
 
-            // Funciones de reseteo
+            // Reset dependent select options
             function resetEstados() {
                 $('#estado').html('<option value="" class="select-placeholder" selected disabled>Seleccione un País...</option>');
                 resetMunicipios();
@@ -318,15 +313,12 @@
                 $('#municipio').html('<option value="" class="select-placeholder" selected disabled>Seleccione un Estado...</option>');
             }
 
-            // ----- 2. Ejecución inicial -----
+            // Initialize form with reference data
             cargarGeneros();
             cargarDepartamentos();
             cargarPaises();
 
-
-            // ----- 3. Manejadores de eventos (Validación y carga dinámica) -----
-
-            // Validación en tiempo real
+            // Real-time form validation
             $('input[required], select[required]').on('blur change', function() {
                 validateField($(this));
             });
@@ -339,14 +331,14 @@
                 }
             }
 
-            // Cargar estados cuando cambia el país
+            // Load states when country changes
             $('#pais').on('change', function() {
                 var paisId = $(this).val();
                 validateField($(this));
                 cargarEstados(paisId);
             });
 
-            // Cargar municipios cuando cambia el estado
+            // Load municipalities when state changes
             $('#estado').on('change', function() {
                 var estadoId = $(this).val();
                 validateField($(this));
@@ -354,10 +346,9 @@
             });
 
 
-            // ----- 4. Envío del Formulario (POST a Node.js) -----
-
+            // Form submission handler
             $('#employeeForm').on('submit', function(e) {
-                e.preventDefault(); // Prevenir el envío tradicional
+                e.preventDefault(); // Prevent default form submission
 
                 if (!this.checkValidity()) {
                     e.stopPropagation();
@@ -368,10 +359,10 @@
                 
                 $(this).addClass('was-validated');
 
-                // Enviar por AJAX a nuestro servidor Node.js
+                // Submit form data via AJAX to Node.js server
                 $.ajax({
                     type: 'POST',
-                    url: `${API_URL}/empleados`, // El endpoint que creamos en server.js
+                    url: `${API_URL}/empleados`,
                     data: $(this).serialize(),
                     dataType: 'json',
                     
@@ -379,19 +370,14 @@
                         if (response.status === 'success') {
                             Swal.fire('¡Éxito!', response.message, 'success');
                             
-                            // Limpiar formulario
+                            // Clear form and reset validation states
                             $('#employeeForm')[0].reset();
                             $('#employeeForm').removeClass('was-validated');
                             $('input, select').removeClass('is-valid is-invalid');
                             
-                            // Resetear selects dependientes
+                            // Reset dependent selects
                             resetEstados();
                             resetMunicipios();
-                            
-                            // Opcional: Recargar los selects principales si es necesario
-                            // cargarGeneros();
-                            // cargarDepartamentos();
-                            // cargarPaises();
                         } else {
                             Swal.fire('Error', response.message, 'error');
                         }

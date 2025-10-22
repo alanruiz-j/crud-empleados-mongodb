@@ -1,17 +1,6 @@
-/**
- * SISTEMA DE GESTIÓN DE EMPLEADOS - MONGODB
- * Este archivo define la estructura de la base de datos para un sistema de gestión de empleados
- * Incluye esquemas de validación, creación de colecciones y datos iniciales
- */
-
-// ============================================================================
-// ESQUEMAS DE VALIDACIÓN PARA LAS COLECCIONES
-// ============================================================================
-
-/**
- * Esquema de validación para la colección de Empleados
- * Define la estructura y reglas de validación para documentos de empleados
- */
+// Employee Management System - MongoDB Database Schema
+// This file defines database structure, validation schemas, and initial data for an employee management system
+// Employee collection validation schema with strict field requirements
 const empleadosSchema = {
   "$jsonSchema": {
     "bsonType": "object",
@@ -30,89 +19,89 @@ const empleadosSchema = {
     "properties": {
       "nombre_empleado": {
         "bsonType": "string",
-        "description": "Nombre del empleado (campo obligatorio)"
+        "description": "Employee first name (required)"
       },
       "apellido_paterno": {
         "bsonType": ["string", "null"],
-        "description": "Apellido paterno (opcional, pero al menos uno de los apellidos es requerido)"
+        "description": "Paternal last name (optional, but at least one last name required)"
       },
       "apellido_materno": {
         "bsonType": ["string", "null"], 
-        "description": "Apellido materno (opcional, pero al menos uno de los apellidos es requerido)"
+        "description": "Maternal last name (optional, but at least one last name required)"
       },
       "id_genero": {
         "bsonType": "objectId",
-        "description": "Referencia al género del empleado en la colección Generos"
+        "description": "Reference to gender in Generos collection"
       },
       "curp_empleado": {
         "bsonType": "string",
-        "description": "CURP del empleado con formato válido mexicano",
+        "description": "Mexican CURP with valid format",
         "pattern": "^([A-Z][AEIOUX][A-Z]{2}[0-9]{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12][0-9]|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9])([0-9])$"
       },
       "rfc_empleado": {
         "bsonType": "string",
-        "description": "RFC del empleado con formato válido mexicano",
+        "description": "Mexican RFC with valid format",
         "pattern": "^[A-ZÑ&]{3,4}[0-9]{6}(?:[A-Z0-9]{3})?$"
       },
       "telefono_empleado": {
         "bsonType": "string",
-        "description": "Número telefónico de 10 dígitos",
+        "description": "10-digit phone number",
         "pattern": "^[0-9]{10}$"
       },
       "contratante": {
         "bsonType": "objectId",
-        "description": "Referencia al empleado que contrató a este empleado (auto-referencia)"
+        "description": "Reference to employee who hired this employee (self-reference)"
       },
       "fecha_contratacion": {
         "bsonType": "date",
-        "description": "Fecha en que fue contratado el empleado"
+        "description": "Employee hire date"
       },
       "id_departamento": {
         "bsonType": "objectId",
-        "description": "Referencia al departamento al que pertenece el empleado"
+        "description": "Reference to employee's department"
       },
       "domicilio": {
         "bsonType": "object",
-        "description": "Información de domicilio del empleado (documento embebido)",
+        "description": "Employee address information (embedded document)",
         "required": ["calle", "numero_exterior", "colonia", "id_municipio"],
         "properties": {
           "calle": { 
             "bsonType": "string",
-            "description": "Nombre de la calle"
+            "description": "Street name"
           },
           "numero_exterior": { 
             "bsonType": "string",
-            "description": "Número exterior del domicilio"
+            "description": "Exterior number"
           },
           "numero_interior": {
             "bsonType": ["string", "null"],
-            "description": "Número interior (opcional)"
+            "description": "Interior number (optional)"
           },
           "colonia": { 
             "bsonType": "string",
-            "description": "Colonia o barrio"
+            "description": "Neighborhood or district"
           },
           "id_municipio": {
             "bsonType": "objectId",
-            "description": "Referencia al municipio en la colección Municipios"
+            "description": "Reference to municipality in Municipios collection"
           }
         }
       },
       "correos": {
         "bsonType": "array",
-        "description": "Lista de correos electrónicos del empleado",
+        "description": "Employee email addresses list",
         "items": {
           "bsonType": "object",
           "required": ["correo_empleado", "tipo_correo"],
           "properties": {
             "correo_empleado": {
               "bsonType": "string",
-              "description": "Dirección de correo electrónico válida",
+              "description": "Valid email address",
               "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
             },
             "tipo_correo": {
               "bsonType": "string",
-              "description": "Tipo de correo: principal o secundario",
+              "description": "Email type: principal or secundario",
               "enum": ["principal", "secundario"]
             }
           }
@@ -126,24 +115,14 @@ const empleadosSchema = {
   }
 }
 
-// ============================================================================
-// CREACIÓN DE COLECCIONES CON VALIDACIÓN
-// ============================================================================
-
-/**
- * Crea la colección de Empleados con validación estricta
- * Aplica el esquema de validación definido anteriormente
- */
+// Create collections with strict validation
 db.createCollection('Empleados', {
   validator: empleadosSchema,
   validationLevel: "strict",
   validationAction: "error"
 })
 
-/**
- * Esquema de validación para la colección de Géneros
- * Define los tipos de género disponibles en el sistema
- */
+// Gender collection validation schema
 const generosSchema = {
   "$jsonSchema": {
     "bsonType": "object",
@@ -152,29 +131,23 @@ const generosSchema = {
     "properties": {
       "nombre_genero": {
         "bsonType": "string",
-        "description": "Nombre del género (campo obligatorio)"
+        "description": "Gender name (required)"
       },
       "estado_genero": {
         "bsonType": "bool",
-        "description": "Estado activo/inactivo del género"
+        "description": "Active/inactive status"
       }
     }
   }
 }
 
-/**
- * Crea la colección de Géneros con validación estricta
- */
 db.createCollection('Generos', {
   validator: generosSchema,
   validationLevel: "strict",
   validationAction: "error"
 })
 
-/**
- * Esquema de validación para la colección de Departamentos
- * Define los departamentos de la empresa
- */
+// Department collection validation schema
 const departamentosSchema = {
   "$jsonSchema": {
     "bsonType": "object",
@@ -183,29 +156,23 @@ const departamentosSchema = {
     "properties": {
       "nombre_departamento": {
         "bsonType": "string",
-        "description": "Nombre del departamento (campo obligatorio)"
+        "description": "Department name (required)"
       },
       "estado_departamento": {
         "bsonType": "bool",
-        "description": "Estado activo/inactivo del departamento"
+        "description": "Active/inactive status"
       }
     }
   }
 }
 
-/**
- * Crea la colección de Departamentos con validación estricta
- */
 db.createCollection('Departamentos', {
   validator: departamentosSchema,
   validationLevel: "strict",
   validationAction: "error"
 })
 
-/**
- * Esquema de validación para la colección de Países
- * Define los países disponibles en el sistema
- */
+// Country collection validation schema
 const paisesSchema = {
   "$jsonSchema": {
     "bsonType": "object",
@@ -214,29 +181,23 @@ const paisesSchema = {
     "properties": {
       "nombre_pais": {
         "bsonType": "string",
-        "description": "Nombre del país (campo obligatorio)"
+        "description": "Country name (required)"
       },
       "estado_pais": {
         "bsonType": "bool",
-        "description": "Estado activo/inactivo del país"
+        "description": "Active/inactive status"
       }
     }
   }
 }
 
-/**
- * Crea la colección de Países con validación estricta
- */
 db.createCollection('Paises', {
   validator: paisesSchema,
   validationLevel: "strict",
   validationAction: "error"
 })
 
-/**
- * Esquema de validación para la colección de Estados
- * Define los estados/provincias de cada país
- */
+// State/Province collection validation schema
 const estadosSchema = {
   "$jsonSchema": {
     "bsonType": "object",
@@ -245,33 +206,27 @@ const estadosSchema = {
     "properties": {
       "nombre_estado": {
         "bsonType": "string",
-        "description": "Nombre del estado (campo obligatorio)"
+        "description": "State name (required)"
       },
       "id_pais": {
         "bsonType": "objectId",
-        "description": "Referencia al país al que pertenece el estado"
+        "description": "Reference to parent country"
       },
       "estado_estado": {
         "bsonType": "bool",
-        "description": "Estado activo/inactivo del estado"
+        "description": "Active/inactive status"
       }
     }
   }
 }
 
-/**
- * Crea la colección de Estados con validación estricta
- */
 db.createCollection('Estados', {
   validator: estadosSchema,
   validationLevel: "strict",
   validationAction: "error"
 })
 
-/**
- * Esquema de validación para la colección de Municipios
- * Define los municipios/ciudades de cada estado
- */
+// Municipality/City collection validation schema
 const municipiosSchema = {
   "$jsonSchema": {
     "bsonType": "object",
@@ -280,47 +235,35 @@ const municipiosSchema = {
     "properties": {
       "nombre_municipio": {
         "bsonType": "string",
-        "description": "Nombre del municipio (campo obligatorio)"
+        "description": "Municipality name (required)"
       },
       "id_estado": {
         "bsonType": "objectId",
-        "description": "Referencia al estado al que pertenece el municipio"
+        "description": "Reference to parent state"
       },
       "estado_municipio": {
         "bsonType": "bool",
-        "description": "Estado activo/inactivo del municipio"
+        "description": "Active/inactive status"
       }
     }
   }
 }
 
-/**
- * Crea la colección de Municipios con validación estricta
- */
 db.createCollection('Municipios', {
   validator: municipiosSchema,
   validationLevel: "strict",
   validationAction: "error"
 })
 
-// ============================================================================
-// DATOS INICIALES (SEED DATA)
-// ============================================================================
-
-/**
- * Inserta los géneros disponibles en el sistema
- * Define las opciones de género para los empleados
- */
+// Initial data (seed data) for the system
+// Insert available gender options
 db.Generos.insertMany([
   { nombre_genero: "Masculino", estado_genero: true },
   { nombre_genero: "Femenino", estado_genero: true },
   { nombre_genero: "Otro", estado_genero: true }
 ]);
 
-/**
- * Inserta los departamentos de la empresa
- * Define las áreas organizacionales disponibles
- */
+// Insert company departments
 db.Departamentos.insertMany([
   { nombre_departamento: "Recursos Humanos", estado_departamento: true },
   { nombre_departamento: "Tecnología", estado_departamento: true },
@@ -329,45 +272,25 @@ db.Departamentos.insertMany([
   { nombre_departamento: "Finanzas", estado_departamento: true }
 ]);
 
-// ============================================================================
-// CONFIGURACIÓN DE IDS PARA RELACIONES
-// ============================================================================
-
-/**
- * Genera IDs únicos para países
- * Estos IDs se utilizan para establecer relaciones entre países, estados y municipios
- */
+// Generate unique IDs for establishing relationships between countries, states, and municipalities
 const paisMexicoId = new ObjectId();
 const paisUsaId = new ObjectId();
 const paisCanadaId = new ObjectId();
 
-/**
- * Genera IDs únicos para estados
- * Cada estado está relacionado con un país específico
- */
 const estadoCdmxId = new ObjectId();
 const estadoJaliscoId = new ObjectId();
 const estadoNuevoLeonId = new ObjectId();
 const estadoCaliforniaId = new ObjectId();
 
-// ============================================================================
-// INSERCIÓN DE DATOS GEOGRÁFICOS
-// ============================================================================
-
-/**
- * Inserta los países disponibles en el sistema
- * Incluye ejemplos de países activos e inactivos
- */
+// Insert geographical data with relationships
+// Insert countries (includes active and inactive examples)
 db.Paises.insertMany([
   { _id: paisMexicoId, nombre_pais: "México", estado_pais: true },
   { _id: paisUsaId, nombre_pais: "Estados Unidos", estado_pais: true },
   { _id: paisCanadaId, nombre_pais: "Canadá", estado_pais: false }
 ]);
 
-/**
- * Inserta los estados/provincias de cada país
- * Establece las relaciones entre países y estados
- */
+// Insert states/provinces for each country
 db.Estados.insertMany([
   { _id: estadoCdmxId, nombre_estado: "Ciudad de México", id_pais: paisMexicoId, estado_estado: true },
   { _id: estadoJaliscoId, nombre_estado: "Jalisco", id_pais: paisMexicoId, estado_estado: true },
@@ -375,27 +298,23 @@ db.Estados.insertMany([
   { _id: estadoCaliforniaId, nombre_estado: "California", id_pais: paisUsaId, estado_estado: true }
 ]);
 
-/**
- * Inserta los municipios/ciudades de cada estado
- * Establece las relaciones entre estados y municipios
- * Organizado por estado para mejor legibilidad
- */
+// Insert municipalities/cities for each state
 db.Municipios.insertMany([
-  // Municipios de Ciudad de México
+  // Ciudad de México municipalities
   { nombre_municipio: "Coyoacán", id_estado: estadoCdmxId, estado_municipio: true },
   { nombre_municipio: "Álvaro Obregón", id_estado: estadoCdmxId, estado_municipio: true },
   { nombre_municipio: "Benito Juárez", id_estado: estadoCdmxId, estado_municipio: true },
   
-  // Municipios de Jalisco
+  // Jalisco municipalities
   { nombre_municipio: "Guadalajara", id_estado: estadoJaliscoId, estado_municipio: true },
   { nombre_municipio: "Zapopan", id_estado: estadoJaliscoId, estado_municipio: true },
   { nombre_municipio: "Tlaquepaque", id_estado: estadoJaliscoId, estado_municipio: true },
 
-  // Municipios de Nuevo León
+  // Nuevo León municipalities
   { nombre_municipio: "Monterrey", id_estado: estadoNuevoLeonId, estado_municipio: true },
   { nombre_municipio: "San Pedro Garza García", id_estado: estadoNuevoLeonId, estado_municipio: true },
   
-  // Municipios de California
+  // California municipalities
   { nombre_municipio: "Los Ángeles", id_estado: estadoCaliforniaId, estado_municipio: true },
   { nombre_municipio: "San Francisco", id_estado: estadoCaliforniaId, estado_municipio: true }
 ]);

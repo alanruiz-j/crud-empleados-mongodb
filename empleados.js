@@ -136,26 +136,26 @@ db.createCollection('Generos', {
 var departamentosSchema = {
   "$jsonSchema": {
     "bsonType": "object",
-    "title": "Validación de Documento de País",
-    "required": [ "nombre_pais" ],
+    "title": "Validación de Documento de Departamento",
+    "required": [ "nombre_departamento" ],
     "properties": {
-      "nombre_pais": {
+      "nombre_departamento": {
         "bsonType": "string",
         "description": "Requerido (NOT NULL)"
       },
-      "estado_pais": {
+      "estado_departamento": {
         "bsonType": "bool",
         "description": "Default"
       }
     }
   }
-}
+};
 
 db.createCollection('Departamentos', {
     validator: departamentosSchema,
     validationLevel: "strict",
     validationAction: "error"
-})
+});
 
 var paisesSchema = {
   "$jsonSchema": {

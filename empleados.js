@@ -236,3 +236,60 @@ db.createCollection('Municipios', {
   validationLevel: "strict",
   validationAction: "error"
 })
+
+
+db.Generos.insertMany([
+  { nombre_genero: "Masculino", estado_genero: true },
+  { nombre_genero: "Femenino", estado_genero: true },
+  { nombre_genero: "Otro", estado_genero: true }
+]);
+
+db.Departamentos.insertMany([
+  { nombre_departamento: "Recursos Humanos", estado_departamento: true },
+  { nombre_departamento: "Tecnología", estado_departamento: true },
+  { nombre_departamento: "Ventas", estado_departamento: true },
+  { nombre_departamento: "Marketing", estado_departamento: true },
+  { nombre_departamento: "Finanzas", estado_departamento: true }
+]);
+
+var paisMexicoId = new ObjectId();
+var paisUsaId = new ObjectId();
+var paisCanadaId = new ObjectId();
+
+var estadoCdmxId = new ObjectId();
+var estadoJaliscoId = new ObjectId();
+var estadoNuevoLeonId = new ObjectId();
+var estadoCaliforniaId = new ObjectId();
+
+db.Paises.insertMany([
+  { _id: paisMexicoId, nombre_pais: "México", estado_pais: true },
+  { _id: paisUsaId, nombre_pais: "Estados Unidos", estado_pais: true },
+  { _id: paisCanadaId, nombre_pais: "Canadá", estado_pais: false } // Ejemplo de un país inactivo
+]);
+
+db.Estados.insertMany([
+  { _id: estadoCdmxId, nombre_estado: "Ciudad de México", id_pais: paisMexicoId, estado_estado: true },
+  { _id: estadoJaliscoId, nombre_estado: "Jalisco", id_pais: paisMexicoId, estado_estado: true },
+  { _id: estadoNuevoLeonId, nombre_estado: "Nuevo León", id_pais: paisMexicoId, estado_estado: true },
+  { _id: estadoCaliforniaId, nombre_estado: "California", id_pais: paisUsaId, estado_estado: true }
+]);
+
+db.Municipios.insertMany([
+  // Municipios de CDMX
+  { nombre_municipio: "Coyoacán", id_estado: estadoCdmxId, estado_municipio: true },
+  { nombre_municipio: "Álvaro Obregón", id_estado: estadoCdmxId, estado_municipio: true },
+  { nombre_municipio: "Benito Juárez", id_estado: estadoCdmxId, estado_municipio: true },
+  
+  // Municipios de Jalisco
+  { nombre_municipio: "Guadalajara", id_estado: estadoJaliscoId, estado_municipio: true },
+  { nombre_municipio: "Zapopan", id_estado: estadoJaliscoId, estado_municipio: true },
+  { nombre_municipio: "Tlaquepaque", id_estado: estadoJaliscoId, estado_municipio: true },
+
+  // Municipios de Nuevo León
+  { nombre_municipio: "Monterrey", id_estado: estadoNuevoLeonId, estado_municipio: true },
+  { nombre_municipio: "San Pedro Garza García", id_estado: estadoNuevoLeonId, estado_municipio: true },
+  
+  // Municipios de California
+  { nombre_municipio: "Los Ángeles", id_estado: estadoCaliforniaId, estado_municipio: true },
+  { nombre_municipio: "San Francisco", id_estado: estadoCaliforniaId, estado_municipio: true }
+]);

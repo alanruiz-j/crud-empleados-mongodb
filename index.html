@@ -166,19 +166,19 @@
                                 <div class="col-md-4">
                                     <label for="pais" class="form-label">País <span class="text-danger">*</span></label>
                                     <select class="form-select" id="pais" name="pais_empleado" required>
-                                        <option value="" class="select-placeholder">Seleccione un País...</option>
+                                        <option value="" class="select-placeholder" selected disabled>Seleccione un País...</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="estado" class="form-label">Estado <span class="text-danger">*</span></label>
                                     <select class="form-select" id="estado" name="estado_empleado" required>
-                                        <option value="" class="select-placeholder">Seleccione un Estado...</option>
+                                        <option value="" class="select-placeholder" selected disabled>Seleccione un Estado...</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="municipio" class="form-label">Municipio <span class="text-danger">*</span></label>
                                     <select class="form-select" id="municipio" name="municipio_empleado" required>
-                                        <option value="" class="select-placeholder">Seleccione un Municipio...</option>
+                                        <option value="" class="select-placeholder" selected disabled>Seleccione un Municipio...</option>
                                     </select>
                                 </div>
                             </div>
@@ -207,6 +207,57 @@
 
     <script>
         $(document).ready(function() {
+            // Datos locales para países / estados / municipios (reemplaza o extiende según necesites)
+            const ubicaciones = {
+                paises: [
+                    {
+                        id: 'mx',
+                        nombre: 'México',
+                        estados: [
+                            {
+                                id: 'cdmx',
+                                nombre: 'Ciudad de México',
+                                municipios: [
+                                    { id: 'alvaro_obregon', nombre: 'Álvaro Obregón' },
+                                    { id: 'coyoacan', nombre: 'Coyoacán' },
+                                    { id: 'tlahuac', nombre: 'Tláhuac' }
+                                ]
+                            },
+                            {
+                                id: 'jal',
+                                nombre: 'Jalisco',
+                                municipios: [
+                                    { id: 'guadalajara', nombre: 'Guadalajara' },
+                                    { id: 'zapopan', nombre: 'Zapopan' }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        id: 'us',
+                        nombre: 'Estados Unidos',
+                        estados: [
+                            {
+                                id: 'ca',
+                                nombre: 'California',
+                                municipios: [
+                                    { id: 'la', nombre: 'Los Ángeles' },
+                                    { id: 'sf', nombre: 'San Francisco' }
+                                ]
+                            },
+                            {
+                                id: 'tx',
+                                nombre: 'Texas',
+                                municipios: [
+                                    { id: 'hou', nombre: 'Houston' },
+                                    { id: 'dal', nombre: 'Dallas' }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
             // Cargar países al inicializar la página
             cargarPaises();
 
@@ -216,62 +267,74 @@
             });
 
             function validateField($field) {
-                if ($field.val() === null || $field.val().trim() === '') {
+                if ($field.val() === null || $field.val().toString().trim() === '') {
                     $field.removeClass('is-valid').addClass('is-invalid');
                 } else {
                     $field.removeClass('is-invalid').addClass('is-valid');
                 }
             }
 
-            // ----- AJAX para cargar estados cuando cambia el país -----
+            // Manejo de cambios en selects
             $('#pais').on('change', function() {
                 var paisId = $(this).val();
                 validateField($(this));
                 if (paisId) {
                     cargarEstados(paisId);
                 } else {
-                    $('#estado').html('<option value="" class="select-placeholder">Seleccione un Estado...</option>');
-                    $('#municipio').html('<option value="" class="select-placeholder">Seleccione un Municipio...</option>');
+                    resetEstados();
                 }
             });
 
             $('#estado').on('change', function() {
                 var estadoId = $(this).val();
-                 validateField($(this));
+                validateField($(this));
                 if (estadoId) {
-                    cargarMunicipios(estadoId);
+                    cargarMunicipios($('#pais').val(), estadoId);
                 } else {
-                    $('#municipio').html('<option value="" class="select-placeholder">Seleccione un Municipio...</option>');
+                    resetMunicipios();
                 }
             });
 
-            function cargarEstados(paisId) {
-                $.ajax({
-                    type: 'POST',
-                    url: 'get_ubicaciones.php', // Endpoint para obtener estados
-                    data: { pais_id: paisId },
-                    success: function(html) {
-                        $('#estado').html(html);
-                        $('#municipio').html('<option value="" class="select-placeholder">Seleccione un Municipio...</option>');
-                    },
-                    error: function() {
-                        $('#estado').html('<option value="" class="select-placeholder">Error al cargar estados</option>');
-                    }
+            function cargarPaises() {
+                const $pais = $('#pais');
+                $pais.html('<option value="" class="select-placeholder" selected disabled>Seleccione un País...</option>');
+                ubicaciones.paises.forEach(p => {
+                    $pais.append($('<option>').val(p.id).text(p.nombre));
                 });
+                resetEstados();
+                resetMunicipios();
             }
 
-            function cargarMunicipios(estadoId) {
-                $.ajax({
-                    type: 'POST',
-                    url: 'get_ubicaciones.php', // Endpoint para obtener municipios
-                    data: { estado_id: estadoId },
-                    success: function(html) {
-                        $('#municipio').html(html);
-                    },
-                    error: function() {
-                        $('#municipio').html('<option value="" class="select-placeholder">Error al cargar municipios</option>');
-                    }
-                });
+            function cargarEstados(paisId) {
+                const pais = ubicaciones.paises.find(p => p.id === paisId);
+                const $estado = $('#estado');
+                $estado.html('<option value="" class="select-placeholder" selected disabled>Seleccione un Estado...</option>');
+                if (pais && Array.isArray(pais.estados)) {
+                    pais.estados.forEach(e => {
+                        $estado.append($('<option>').val(e.id).text(e.nombre));
+                    });
+                }
+                resetMunicipios();
+            }
+
+            function cargarMunicipios(paisId, estadoId) {
+                const pais = ubicaciones.paises.find(p => p.id === paisId);
+                const estado = pais ? pais.estados.find(e => e.id === estadoId) : null;
+                const $municipio = $('#municipio');
+                $municipio.html('<option value="" class="select-placeholder" selected disabled>Seleccione un Municipio...</option>');
+                if (estado && Array.isArray(estado.municipios)) {
+                    estado.municipios.forEach(m => {
+                        $municipio.append($('<option>').val(m.id).text(m.nombre));
+                    });
+                }
+            }
+
+            function resetEstados() {
+                $('#estado').html('<option value="" class="select-placeholder" selected disabled>Seleccione un Estado...</option>');
+            }
+
+            function resetMunicipios() {
+                $('#municipio').html('<option value="" class="select-placeholder" selected disabled>Seleccione un Municipio...</option>');
             }
 
             // Validación del formulario del lado del cliente

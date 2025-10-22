@@ -90,10 +90,7 @@
                                 <div class="col-md-4">
                                     <label for="genero" class="form-label">Género <span class="text-danger">*</span></label>
                                     <select class="form-select" id="genero" required name="genero_empleado">
-                                        <option selected disabled value="" class="select-placeholder">Seleccione...</option>
-                                        <option value="1">Masculino</option>
-                                        <option value="2">Femenino</option>
-                                        <option value="3">Otro</option>
+                                        <option selected disabled value="" class="select-placeholder">Cargando...</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
@@ -110,12 +107,7 @@
                                 <div class="col-md-4">
                                     <label for="departamento" class="form-label">Departamento <span class="text-danger">*</span></label>
                                     <select class="form-select" id="departamento" name="departamento_empleado" required>
-                                        <option selected disabled value="" class="select-placeholder">Seleccione...</option>
-                                        <option value="1">Recursos Humanos</option>
-                                        <option value="2">Tecnología</option>
-                                        <option value="3">Ventas</option>
-                                        <option value="4">Marketing</option>
-                                        <option value="5">Finanzas</option>
+                                        <option selected disabled value="" class="select-placeholder">Cargando...</option>
                                     </select>
                                 </div>
                             </div>
@@ -166,19 +158,19 @@
                                 <div class="col-md-4">
                                     <label for="pais" class="form-label">País <span class="text-danger">*</span></label>
                                     <select class="form-select" id="pais" name="pais_empleado" required>
-                                        <option value="" class="select-placeholder" selected disabled>Seleccione un País...</option>
+                                        <option value="" class="select-placeholder" selected disabled>Cargando...</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="estado" class="form-label">Estado <span class="text-danger">*</span></label>
                                     <select class="form-select" id="estado" name="estado_empleado" required>
-                                        <option value="" class="select-placeholder" selected disabled>Seleccione un Estado...</option>
+                                        <option value="" class="select-placeholder" selected disabled>Seleccione un País...</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="municipio" class="form-label">Municipio <span class="text-danger">*</span></label>
                                     <select class="form-select" id="municipio" name="municipio_empleado" required>
-                                        <option value="" class="select-placeholder" selected disabled>Seleccione un Municipio...</option>
+                                        <option value="" class="select-placeholder" selected disabled>Seleccione un Estado...</option>
                                     </select>
                                 </div>
                             </div>
@@ -204,64 +196,137 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         $(document).ready(function() {
-            // Datos locales para países / estados / municipios (reemplaza o extiende según necesites)
-            const ubicaciones = {
-                paises: [
-                    {
-                        id: 'mx',
-                        nombre: 'México',
-                        estados: [
-                            {
-                                id: 'cdmx',
-                                nombre: 'Ciudad de México',
-                                municipios: [
-                                    { id: 'alvaro_obregon', nombre: 'Álvaro Obregón' },
-                                    { id: 'coyoacan', nombre: 'Coyoacán' },
-                                    { id: 'tlahuac', nombre: 'Tláhuac' }
-                                ]
-                            },
-                            {
-                                id: 'jal',
-                                nombre: 'Jalisco',
-                                municipios: [
-                                    { id: 'guadalajara', nombre: 'Guadalajara' },
-                                    { id: 'zapopan', nombre: 'Zapopan' }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        id: 'us',
-                        nombre: 'Estados Unidos',
-                        estados: [
-                            {
-                                id: 'ca',
-                                nombre: 'California',
-                                municipios: [
-                                    { id: 'la', nombre: 'Los Ángeles' },
-                                    { id: 'sf', nombre: 'San Francisco' }
-                                ]
-                            },
-                            {
-                                id: 'tx',
-                                nombre: 'Texas',
-                                municipios: [
-                                    { id: 'hou', nombre: 'Houston' },
-                                    { id: 'dal', nombre: 'Dallas' }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            };
 
-            // Cargar países al inicializar la página
+            // URL base de tu API (la crearemos en server.js)
+            const API_URL = 'http://localhost:3000/api';
+
+            // ----- 1. Carga inicial de datos (Selects) -----
+            
+            // Cargar Géneros
+            function cargarGeneros() {
+                $.ajax({
+                    url: `${API_URL}/generos`,
+                    type: 'GET',
+                    success: function(data) {
+                        const $select = $('#genero');
+                        $select.html('<option value="" class="select-placeholder" selected disabled>Seleccione...</option>');
+                        data.forEach(item => {
+                            // Usamos el _id de MongoDB como el 'value'
+                            $select.append($('<option>').val(item._id).text(item.nombre_genero));
+                        });
+                    },
+                    error: function() {
+                        $('#genero').html('<option value="" class="select-placeholder" selected disabled>Error al cargar</option>');
+                    }
+                });
+            }
+
+            // Cargar Departamentos
+            function cargarDepartamentos() {
+                $.ajax({
+                    url: `${API_URL}/departamentos`,
+                    type: 'GET',
+                    success: function(data) {
+                        const $select = $('#departamento');
+                        $select.html('<option value="" class="select-placeholder" selected disabled>Seleccione...</option>');
+                        data.forEach(item => {
+                            // NOTA: Tu schema 'departamentosSchema' tenía un error (decía nombre_pais).
+                            // Asumimos que el campo en la DB es 'nombre_departamento'.
+                            $select.append($('<option>').val(item._id).text(item.nombre_departamento || item.nombre_pais));
+                        });
+                    },
+                    error: function() {
+                        $('#departamento').html('<option value="" class="select-placeholder" selected disabled>Error al cargar</option>');
+                    }
+                });
+            }
+
+            // Cargar Países
+            function cargarPaises() {
+                $.ajax({
+                    url: `${API_URL}/paises`,
+                    type: 'GET',
+                    success: function(data) {
+                        const $select = $('#pais');
+                        $select.html('<option value="" class="select-placeholder" selected disabled>Seleccione un País...</option>');
+                        data.forEach(item => {
+                            $select.append($('<option>').val(item._id).text(item.nombre_pais));
+                        });
+                    },
+                    error: function() {
+                        $('#pais').html('<option value="" class="select-placeholder" selected disabled>Error al cargar</option>');
+                    }
+                });
+            }
+
+            // Cargar Estados (depende de País)
+            function cargarEstados(paisId) {
+                if (!paisId) {
+                    resetEstados();
+                    return;
+                }
+                $.ajax({
+                    url: `${API_URL}/estados/pais/${paisId}`, // Ruta para buscar estados por ID de país
+                    type: 'GET',
+                    success: function(data) {
+                        const $select = $('#estado');
+                        $select.html('<option value="" class="select-placeholder" selected disabled>Seleccione un Estado...</option>');
+                        data.forEach(item => {
+                            $select.append($('<option>').val(item._id).text(item.nombre_estado));
+                        });
+                        resetMunicipios();
+                    },
+                    error: function() {
+                        $('#estado').html('<option value="" class="select-placeholder" selected disabled>Error al cargar</option>');
+                    }
+                });
+            }
+
+            // Cargar Municipios (depende de Estado)
+            function cargarMunicipios(estadoId) {
+                if (!estadoId) {
+                    resetMunicipios();
+                    return;
+                }
+                 $.ajax({
+                    url: `${API_URL}/municipios/estado/${estadoId}`, // Ruta para buscar municipios por ID de estado
+                    type: 'GET',
+                    success: function(data) {
+                        const $select = $('#municipio');
+                        $select.html('<option value="" class="select-placeholder" selected disabled>Seleccione un Municipio...</option>');
+                        data.forEach(item => {
+                            $select.append($('<option>').val(item._id).text(item.nombre_municipio));
+                        });
+                    },
+                    error: function() {
+                        $('#municipio').html('<option value="" class="select-placeholder" selected disabled>Error al cargar</option>');
+                    }
+                });
+            }
+
+            // Funciones de reseteo
+            function resetEstados() {
+                $('#estado').html('<option value="" class="select-placeholder" selected disabled>Seleccione un País...</option>');
+                resetMunicipios();
+            }
+
+            function resetMunicipios() {
+                $('#municipio').html('<option value="" class="select-placeholder" selected disabled>Seleccione un Estado...</option>');
+            }
+
+            // ----- 2. Ejecución inicial -----
+            cargarGeneros();
+            cargarDepartamentos();
             cargarPaises();
 
-            // Validación en tiempo real para campos obligatorios
+
+            // ----- 3. Manejadores de eventos (Validación y carga dinámica) -----
+
+            // Validación en tiempo real
             $('input[required], select[required]').on('blur change', function() {
                 validateField($(this));
             });
@@ -274,80 +339,75 @@
                 }
             }
 
-            // Manejo de cambios en selects
+            // Cargar estados cuando cambia el país
             $('#pais').on('change', function() {
                 var paisId = $(this).val();
                 validateField($(this));
-                if (paisId) {
-                    cargarEstados(paisId);
-                } else {
-                    resetEstados();
-                }
+                cargarEstados(paisId);
             });
 
+            // Cargar municipios cuando cambia el estado
             $('#estado').on('change', function() {
                 var estadoId = $(this).val();
                 validateField($(this));
-                if (estadoId) {
-                    cargarMunicipios($('#pais').val(), estadoId);
-                } else {
-                    resetMunicipios();
-                }
+                cargarMunicipios(estadoId);
             });
 
-            function cargarPaises() {
-                const $pais = $('#pais');
-                $pais.html('<option value="" class="select-placeholder" selected disabled>Seleccione un País...</option>');
-                ubicaciones.paises.forEach(p => {
-                    $pais.append($('<option>').val(p.id).text(p.nombre));
-                });
-                resetEstados();
-                resetMunicipios();
-            }
 
-            function cargarEstados(paisId) {
-                const pais = ubicaciones.paises.find(p => p.id === paisId);
-                const $estado = $('#estado');
-                $estado.html('<option value="" class="select-placeholder" selected disabled>Seleccione un Estado...</option>');
-                if (pais && Array.isArray(pais.estados)) {
-                    pais.estados.forEach(e => {
-                        $estado.append($('<option>').val(e.id).text(e.nombre));
-                    });
-                }
-                resetMunicipios();
-            }
+            // ----- 4. Envío del Formulario (POST a Node.js) -----
 
-            function cargarMunicipios(paisId, estadoId) {
-                const pais = ubicaciones.paises.find(p => p.id === paisId);
-                const estado = pais ? pais.estados.find(e => e.id === estadoId) : null;
-                const $municipio = $('#municipio');
-                $municipio.html('<option value="" class="select-placeholder" selected disabled>Seleccione un Municipio...</option>');
-                if (estado && Array.isArray(estado.municipios)) {
-                    estado.municipios.forEach(m => {
-                        $municipio.append($('<option>').val(m.id).text(m.nombre));
-                    });
-                }
-            }
-
-            function resetEstados() {
-                $('#estado').html('<option value="" class="select-placeholder" selected disabled>Seleccione un Estado...</option>');
-            }
-
-            function resetMunicipios() {
-                $('#municipio').html('<option value="" class="select-placeholder" selected disabled>Seleccione un Municipio...</option>');
-            }
-
-            // Validación del formulario del lado del cliente
             $('#employeeForm').on('submit', function(e) {
+                e.preventDefault(); // Prevenir el envío tradicional
+
                 if (!this.checkValidity()) {
-                    e.preventDefault();
                     e.stopPropagation();
+                    $(this).addClass('was-validated');
+                    Swal.fire('Error', 'Por favor, completa todos los campos obligatorios.', 'error');
+                    return;
                 }
+                
                 $(this).addClass('was-validated');
+
+                // Enviar por AJAX a nuestro servidor Node.js
+                $.ajax({
+                    type: 'POST',
+                    url: `${API_URL}/empleados`, // El endpoint que creamos en server.js
+                    data: $(this).serialize(),
+                    dataType: 'json',
+                    
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            Swal.fire('¡Éxito!', response.message, 'success');
+                            
+                            // Limpiar formulario
+                            $('#employeeForm')[0].reset();
+                            $('#employeeForm').removeClass('was-validated');
+                            $('input, select').removeClass('is-valid is-invalid');
+                            
+                            // Resetear selects dependientes
+                            resetEstados();
+                            resetMunicipios();
+                            
+                            // Opcional: Recargar los selects principales si es necesario
+                            // cargarGeneros();
+                            // cargarDepartamentos();
+                            // cargarPaises();
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        let errorMsg = 'No se pudo conectar con el servidor.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        Swal.fire('Error de Servidor', errorMsg, 'error');
+                        console.error("Error en AJAX:", xhr.responseText);
+                    }
+                });
             });
         });
     </script>
 
 </body>
-
 </html>

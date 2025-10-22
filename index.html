@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar empleado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="user-solid-full.ico">
+    <style>
+        .invalid-feedback {
+            display: block;
+        }
+        .was-validated .form-control:invalid, 
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6.4.4.4-.4'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .was-validated .form-control:valid,
+        .form-control.is-valid {
+            border-color: #198754;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .was-validated .form-select:invalid,
+        .form-select.is-invalid {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6.4.4.4-.4'/%3e%3c/svg%3e"), url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+            background-position: right calc(0.375em + 0.1875rem) center, right 0.75rem center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem), 16px 12px;
+        }
+        .was-validated .form-select:valid,
+        .form-select.is-valid {
+            border-color: #198754;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e"), url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+            background-position: right calc(0.375em + 0.1875rem) center, right 0.75rem center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem), 16px 12px;
+        }
+        .select-placeholder {
+            color: #6c757d;
+        }
+        .form-label .text-danger {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container mt-5 mb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h1 class="h4 mb-0">Agregar empleado</h1>
+
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">Registrar un nuevo empleado. Los campos marcados con <span class="text-danger">*</span> son obligatorios.</div>
+
+                        <form id="employeeForm" class="needs-validation" novalidate method="POST" action="#">
+
+                            <h2 class="h5 border-bottom pb-2 mb-3">Información Personal</h2>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="nombre" class="form-label">Nombre(s) <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="nombre" required name="nombre_empleado" maxlength="255">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="apellidoPaterno" class="form-label">Apellido Paterno</label>
+                                    <input type="text" class="form-control" id="apellidoPaterno" name="apellido_paterno_empleado" maxlength="255">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="apellidoMaterno" class="form-label">Apellido Materno</label>
+                                    <input type="text" class="form-control" id="apellidoMaterno" name="apellido_materno_empleado" maxlength="255">
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-4">
+                                    <label for="genero" class="form-label">Género <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="genero" required name="genero_empleado">
+                                        <option selected disabled value="" class="select-placeholder">Seleccione...</option>
+                                        <option value="1">Masculino</option>
+                                        <option value="2">Femenino</option>
+                                        <option value="3">Otro</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="curp" class="form-label">CURP <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="curp" required name="curp_empleado" minlength="18" maxlength="18" pattern="[A-Z][AEIOUX][A-Z]{2}[0-9]{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12][0-9]|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]{2}" title="Introduce un CURP válido (18 caracteres)" style="text-transform: uppercase;">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="rfc" class="form-label">RFC <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="rfc" required name="rfc_empleado" minlength="10" maxlength="13" pattern="[A-ZÑ&]{3,4}[0-9]{6}([A-Z0-9]{3})?" title="Introduce un RFC válido (10 a 13 caracteres)" style="text-transform: uppercase;">
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-4">
+                                    <label for="departamento" class="form-label">Departamento <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="departamento" name="departamento_empleado" required>
+                                        <option selected disabled value="" class="select-placeholder">Seleccione...</option>
+                                        <option value="1">Recursos Humanos</option>
+                                        <option value="2">Tecnología</option>
+                                        <option value="3">Ventas</option>
+                                        <option value="4">Marketing</option>
+                                        <option value="5">Finanzas</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <h2 class="h5 border-bottom pb-2 mb-3">Datos de Contacto</h2>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="telefono" class="form-label">Teléfono <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" id="telefono" required name="telefono_empleado" pattern="[0-9]{10}" maxlength="10" title="Introduce 10 dígitos sin espacios ni guiones">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="correoPrincipal" class="form-label">Correo Principal <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="correoPrincipal" required name="correo_principal_empleado" maxlength="255">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="correoSecundario" class="form-label">Correo Secundario</label>
+                                    <input type="email" class="form-control" id="correoSecundario" name="correo_secundario_empleado" maxlength="255">
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <h2 class="h5 border-bottom pb-2 mb-3">Dirección</h2>
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <label for="calle" class="form-label">Calle <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="calle" required name="calle_empleado" maxlength="255">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="numeroExterior" class="form-label">No. Exterior <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="numeroExterior" required name="numero_exterior_empleado" maxlength="255" pattern="[0-9]+" title="Este campo solo acepta números">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="numeroInterior" class="form-label">No. Interior</label>
+                                    <input type="text" class="form-control" id="numeroInterior" name="numero_interior_empleado" maxlength="255" pattern="[0-9]*" title="Este campo solo acepta números">
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-12">
+                                    <label for="colonia" class="form-label">Colonia <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="colonia" required name="colonia_empleado" maxlength="255">
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-4">
+                                    <label for="pais" class="form-label">País <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="pais" name="pais_empleado" required>
+                                        <option value="" class="select-placeholder">Seleccione un País...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="estado" class="form-label">Estado <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="estado" name="estado_empleado" required>
+                                        <option value="" class="select-placeholder">Seleccione un Estado...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="municipio" class="form-label">Municipio <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="municipio" name="municipio_empleado" required>
+                                        <option value="" class="select-placeholder">Seleccione un Municipio...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div></div>
+
+                                <div>
+                                    <a href="index.html" class="btn btn-secondary">Limpiar / Nuevo</a>
+                                    <button class="btn btn-primary" type="submit" name="guardar_empleado" value="ok">
+                                        Guardar Empleado
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Cargar países al inicializar la página
+            cargarPaises();
+
+            // Validación en tiempo real para campos obligatorios
+            $('input[required], select[required]').on('blur change', function() {
+                validateField($(this));
+            });
+
+            function validateField($field) {
+                if ($field.val() === null || $field.val().trim() === '') {
+                    $field.removeClass('is-valid').addClass('is-invalid');
+                } else {
+                    $field.removeClass('is-invalid').addClass('is-valid');
+                }
+            }
+
+            // ----- AJAX para cargar estados cuando cambia el país -----
+            $('#pais').on('change', function() {
+                var paisId = $(this).val();
+                validateField($(this));
+                if (paisId) {
+                    cargarEstados(paisId);
+                } else {
+                    $('#estado').html('<option value="" class="select-placeholder">Seleccione un Estado...</option>');
+                    $('#municipio').html('<option value="" class="select-placeholder">Seleccione un Municipio...</option>');
+                }
+            });
+
+            $('#estado').on('change', function() {
+                var estadoId = $(this).val();
+                 validateField($(this));
+                if (estadoId) {
+                    cargarMunicipios(estadoId);
+                } else {
+                    $('#municipio').html('<option value="" class="select-placeholder">Seleccione un Municipio...</option>');
+                }
+            });
+
+            function cargarEstados(paisId) {
+                $.ajax({
+                    type: 'POST',
+                    url: 'get_ubicaciones.php', // Endpoint para obtener estados
+                    data: { pais_id: paisId },
+                    success: function(html) {
+                        $('#estado').html(html);
+                        $('#municipio').html('<option value="" class="select-placeholder">Seleccione un Municipio...</option>');
+                    },
+                    error: function() {
+                        $('#estado').html('<option value="" class="select-placeholder">Error al cargar estados</option>');
+                    }
+                });
+            }
+
+            function cargarMunicipios(estadoId) {
+                $.ajax({
+                    type: 'POST',
+                    url: 'get_ubicaciones.php', // Endpoint para obtener municipios
+                    data: { estado_id: estadoId },
+                    success: function(html) {
+                        $('#municipio').html(html);
+                    },
+                    error: function() {
+                        $('#municipio').html('<option value="" class="select-placeholder">Error al cargar municipios</option>');
+                    }
+                });
+            }
+
+            // Validación del formulario del lado del cliente
+            $('#employeeForm').on('submit', function(e) {
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                $(this).addClass('was-validated');
+            });
+        });
+    </script>
+
+</body>
+
+</html>

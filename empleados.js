@@ -21,11 +21,11 @@ var empleadosSchema = {
         "description": "Debe ser un string y es requerido"
       },
       "apellido_paterno": {
-        "bsonType": "string",
+        "bsonType": ["string", "null"], // <-- CORRECCIÓN NUEVA
         "description": "Opcional, pero ver 'anyOf' al final"
       },
       "apellido_materno": {
-        "bsonType": "string",
+        "bsonType": ["string", "null"], // <-- CORRECCIÓN NUEVA
         "description": "Opcional, pero ver 'anyOf' al final"
       },
       "id_genero": {
@@ -66,7 +66,10 @@ var empleadosSchema = {
         "properties": {
           "calle": { "bsonType": "string" },
           "numero_exterior": { "bsonType": "string" },
-          "numero_interior": { "bsonType": "string" },
+          "numero_interior": {
+            "bsonType": ["string", "null"], // <-- Corrección anterior
+            "description": "Opcional"
+          },
           "colonia": { "bsonType": "string" },
           "id_municipio": {
             "bsonType": "objectId",
@@ -85,7 +88,7 @@ var empleadosSchema = {
             "correo_empleado": {
               "bsonType": "string",
               "description": "Debe ser un email válido",
-              "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$"
+              "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" // <-- Corrección anterior
             },
             "tipo_correo": {
               "bsonType": "string",
@@ -102,6 +105,8 @@ var empleadosSchema = {
     ]
   }
 }
+
+// --- El resto del archivo (Creación de colecciones y datos semilla) ---
 
 db.createCollection('Empleados', {
   validator: empleadosSchema,
@@ -237,6 +242,7 @@ db.createCollection('Municipios', {
   validationAction: "error"
 })
 
+// --- DATOS SEMILLA ---
 
 db.Generos.insertMany([
   { nombre_genero: "Masculino", estado_genero: true },

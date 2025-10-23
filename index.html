@@ -200,10 +200,10 @@
 
     <script>
         $(document).ready(function() {
-            // API base URL for backend communication
+            // URL base de API para comunicación con el backend
             const API_URL = 'http://localhost:3000/api';
 
-            // Load initial reference data for form selects
+            // Cargar datos de referencia iniciales para los selects del formulario
             function cargarGeneros() {
                 $.ajax({
                     url: `${API_URL}/generos`,
@@ -212,7 +212,7 @@
                         const $select = $('#genero');
                         $select.html('<option value="" class="select-placeholder" selected disabled>Seleccione...</option>');
                         data.forEach(item => {
-                            // Use MongoDB _id as option value
+                            // Usar _id de MongoDB como valor de opción
                             $select.append($('<option>').val(item._id).text(item.nombre_genero));
                         });
                     },
@@ -222,7 +222,7 @@
                 });
             }
 
-            // Load departments for employee assignment
+            // Cargar departamentos para asignación de empleados
             function cargarDepartamentos() {
                 $.ajax({
                     url: `${API_URL}/departamentos`,
@@ -240,7 +240,7 @@
                 });
             }
 
-            // Load countries for address selection
+            // Cargar países para selección de dirección
             function cargarPaises() {
                 $.ajax({
                     url: `${API_URL}/paises`,
@@ -258,7 +258,7 @@
                 });
             }
 
-            // Load states based on selected country
+            // Cargar estados basados en el país seleccionado
             function cargarEstados(paisId) {
                 if (!paisId) {
                     resetEstados();
@@ -281,7 +281,7 @@
                 });
             }
 
-            // Load municipalities based on selected state
+            // Cargar municipios basados en el estado seleccionado
             function cargarMunicipios(estadoId) {
                 if (!estadoId) {
                     resetMunicipios();
@@ -303,7 +303,7 @@
                 });
             }
 
-            // Reset dependent select options
+            // Reiniciar opciones de selects dependientes
             function resetEstados() {
                 $('#estado').html('<option value="" class="select-placeholder" selected disabled>Seleccione un País...</option>');
                 resetMunicipios();
@@ -313,12 +313,12 @@
                 $('#municipio').html('<option value="" class="select-placeholder" selected disabled>Seleccione un Estado...</option>');
             }
 
-            // Initialize form with reference data
+            // Inicializar formulario con datos de referencia
             cargarGeneros();
             cargarDepartamentos();
             cargarPaises();
 
-            // Real-time form validation
+            // Validación de formulario en tiempo real
             $('input[required], select[required]').on('blur change', function() {
                 validateField($(this));
             });
@@ -331,14 +331,14 @@
                 }
             }
 
-            // Load states when country changes
+            // Cargar estados cuando cambie el país
             $('#pais').on('change', function() {
                 var paisId = $(this).val();
                 validateField($(this));
                 cargarEstados(paisId);
             });
 
-            // Load municipalities when state changes
+            // Cargar municipios cuando cambie el estado
             $('#estado').on('change', function() {
                 var estadoId = $(this).val();
                 validateField($(this));
@@ -346,9 +346,9 @@
             });
 
 
-            // Form submission handler
+            // Manejador de envío de formulario
             $('#employeeForm').on('submit', function(e) {
-                e.preventDefault(); // Prevent default form submission
+                e.preventDefault(); // Prevenir envío por defecto del formulario
 
                 if (!this.checkValidity()) {
                     e.stopPropagation();
@@ -359,7 +359,7 @@
                 
                 $(this).addClass('was-validated');
 
-                // Submit form data via AJAX to Node.js server
+                // Enviar datos del formulario vía AJAX al servidor Node.js
                 $.ajax({
                     type: 'POST',
                     url: `${API_URL}/empleados`,
@@ -370,12 +370,12 @@
                         if (response.status === 'success') {
                             Swal.fire('¡Éxito!', response.message, 'success');
                             
-                            // Clear form and reset validation states
+                            // Limpiar formulario y reiniciar estados de validación
                             $('#employeeForm')[0].reset();
                             $('#employeeForm').removeClass('was-validated');
                             $('input, select').removeClass('is-valid is-invalid');
                             
-                            // Reset dependent selects
+                            // Reiniciar selects dependientes
                             resetEstados();
                             resetMunicipios();
                         } else {

@@ -20,7 +20,7 @@ async function connectAndStartServer() {
         
         db = client.db(dbName);
 
-        // API endpoints for populating form selects with reference data
+        // Endpoints de API para poblar los selects del formulario con datos de referencia
         app.get('/api/generos', async (req, res) => {
             try {
                 const data = await db.collection('Generos').find({ estado_genero: true }).toArray();
@@ -74,12 +74,12 @@ async function connectAndStartServer() {
         });
 
 
-        // Endpoint to create new employee records
+        // Endpoint para crear nuevos registros de empleados
         app.post('/api/empleados', async (req, res) => {
             console.log('Datos recibidos del formulario:', req.body);
 
             try {
-                // Build address object with optional interior number
+                // Construir objeto de dirección con número interior opcional
                 const domicilio = {
                     calle: req.body.calle_empleado || '',
                     numero_exterior: req.body.numero_exterior_empleado || '',
@@ -91,7 +91,7 @@ async function connectAndStartServer() {
                     domicilio.numero_interior = req.body.numero_interior_empleado;
                 }
 
-                // Build email array with optional secondary email
+                // Construir array de correos con correo secundario opcional
                 const correos = [];
                 if (req.body.correo_principal_empleado) {
                     correos.push({
@@ -107,7 +107,7 @@ async function connectAndStartServer() {
                     });
                 }
 
-                // Build main employee document with required fields
+                // Construir documento principal del empleado con campos requeridos
                 const documentoEmpleado = {
                     nombre_empleado: req.body.nombre_empleado || '',
                     id_genero: new ObjectId(req.body.genero_empleado),
@@ -120,7 +120,7 @@ async function connectAndStartServer() {
                     correos: correos
                 };
                 
-                // Add optional last names if provided
+                // Agregar apellidos opcionales si se proporcionan
                 if (req.body.apellido_paterno_empleado) {
                     documentoEmpleado.apellido_paterno = req.body.apellido_paterno_empleado;
                 }
@@ -129,11 +129,11 @@ async function connectAndStartServer() {
                     documentoEmpleado.apellido_materno = req.body.apellido_materno_empleado;
                 }
                 
-                // Insert employee record into database
+                // Insertar registro del empleado en la base de datos
                 const coleccion = db.collection('Empleados');
                 const resultado = await coleccion.insertOne(documentoEmpleado);
 
-                // Return success response
+                // Retornar respuesta de éxito
                 res.status(201).json({
                     status: 'success',
                     message: 'Empleado guardado con éxito',
@@ -141,7 +141,7 @@ async function connectAndStartServer() {
                 });
 
             } catch (err) {
-                // Handle validation and server errors
+                // Manejar errores de validación y del servidor
                 if (err.name === 'MongoServerError' && err.code === 121) {
                     console.error('Error de validación:', err.errInfo.details);
                     res.status(400).json({
@@ -160,7 +160,7 @@ async function connectAndStartServer() {
             }
         });
 
-        // Start the Express server
+        // Iniciar el servidor Express
         app.listen(port, () => {
             console.log(`Servidor API corriendo en http://localhost:${port}`);
         });
@@ -171,5 +171,5 @@ async function connectAndStartServer() {
     }
 }
 
-// Initialize database connection and start server
+// Inicializar conexión a la base de datos e iniciar el servidor
 connectAndStartServer();
